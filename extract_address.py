@@ -38,7 +38,7 @@ def create_csv_file(data, filename):
     """
     with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
         csv_writer = csv.writer(csvfile)
-        csv_writer.writerow(['店舗名', '住所']) # ヘッダー行
+        #csv_writer.writerow(['店舗名', '住所']) # ヘッダー行
         csv_writer.writerows(data)
     print(f"CSVファイル '{filename}' が正常に作成されました。")
 
@@ -64,10 +64,18 @@ def read_file_as_single_string(filepath):
         print(f"ファイルの読み込み中にエラーが発生しました: {e}")
         return None
 
-if __name__ == "__main__":
-    html_content = read_file_as_single_string('p1.html')
-    extracted_data = extract_store_info(html_content)
-    if extracted_data:
-        create_csv_file(extracted_data, 'stores.csv')
+def exec(tag, max_pages):
+    ret = []
+    for page in range(1, max_pages + 1):
+        #print(page)
+        html_content = read_file_as_single_string(tag + str(page) + '.html')
+        extracted_data = extract_store_info(html_content)
+        ret.extend(extracted_data)
+        
+    if ret:
+        create_csv_file(ret, 'stores.csv')
     else:
         print("抽出できる店舗情報が見つかりませんでした。")
+    
+if __name__ == "__main__":
+    exec('input/yurihon_super_market_p', max_pages=4)
