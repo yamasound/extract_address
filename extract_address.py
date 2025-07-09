@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import re
-import csv
+import csv, os, re, sys
 
 def extract_store_info(html_content):
     """
@@ -64,11 +63,33 @@ def read_file_as_single_string(filepath):
         print(f"ファイルの読み込み中にエラーが発生しました: {e}")
         return None
 
-def exec(tag, max_pages):
+def list_filepath_in_directory(directory):
+    """
+    指定されたディレクトリ内のファイルパスのリストを返します。
+
+    Args:
+        directory (str): ファイルパスを取得したいディレクトリ。
+
+    Returns:
+        list: ディレクトリ内のファイルパスのリスト。
+              ディレクトリが存在しない場合は空のリストを返します。
+    """
+    if not os.path.isdir(directory):
+        print(f"エラー: ディレクトリ '{directory}' が存在しないか、ディレクトリではありません。")
+        return []
+
+    files = []
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isfile(item_path):
+            files.append(item_path)
+    return sorted(files)
+    
+def extract_address(directory):
     ret = []
-    for page in range(1, max_pages + 1):
-        #print(page)
-        html_content = read_file_as_single_string(tag + str(page) + '.html')
+    for filepath in list_filepath_in_directory(directory):
+        print(filepath)
+        html_content = read_file_as_single_string(filepath)
         extracted_data = extract_store_info(html_content)
         ret.extend(extracted_data)
         
@@ -77,5 +98,10 @@ def exec(tag, max_pages):
     else:
         print("抽出できる店舗情報が見つかりませんでした。")
     
-if __name__ == "__main__":
-    exec('input/yurihon_super_market_p', max_pages=4)
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        directory = sys.argv[1]
+        extract_address(directory)
+    else:
+        usage = '[SAMPLE] ./extract_address.py input/由利本荘市_スーパーマーケット'
+        print(usage)
